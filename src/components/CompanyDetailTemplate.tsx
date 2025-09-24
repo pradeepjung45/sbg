@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Mail, Phone, Building, Users, Award, CheckCircle, Calendar, Image as ImageIcon, ExternalLink, Newspaper } from "lucide-react";
+import { MapPin, Mail, Phone, Building, Users, Award, CheckCircle, Calendar, Image as ImageIcon, ExternalLink, Newspaper, X, ZoomIn, Download } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Company } from "@/utils/companiesData";
 interface CompanyDetailTemplateProps {
@@ -12,12 +13,46 @@ interface CompanyDetailTemplateProps {
 const CompanyDetailTemplate = ({
   company
 }: CompanyDetailTemplateProps) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const openImageModal = (imageUrl: string, index: number) => {
+    setSelectedImage(imageUrl);
+    setCurrentImageIndex(index);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+  };
+
+  const navigateImage = (direction: 'prev' | 'next') => {
+    if (!company.gallery || company.gallery.length === 0) return;
+    
+    const newIndex = direction === 'next' 
+      ? (currentImageIndex + 1) % company.gallery.length
+      : (currentImageIndex - 1 + company.gallery.length) % company.gallery.length;
+    
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(company.gallery[newIndex]);
+  };
+
+  const downloadImage = () => {
+    if (selectedImage) {
+      const link = document.createElement('a');
+      link.href = selectedImage;
+      link.download = `shyambaba-gallery-${currentImageIndex + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
       <section className="relative bg-background text-foreground pt-24">
-        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="flex items-center gap-3 mb-4">
@@ -61,7 +96,7 @@ const CompanyDetailTemplate = ({
 
       {/* Main Content */}
       <section className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Services/Products Section */}
           <div className="grid lg:grid-cols-3 gap-8 mb-16">
             {/* Services or Products Cards */}
@@ -282,13 +317,48 @@ const CompanyDetailTemplate = ({
 
           {/* Photo Gallery Section */}
           {company.gallery && company.gallery.length > 0 && <div className="mb-16">
-              <h2 className="text-3xl font-bold mb-8">Photo Gallery</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {company.gallery.map((image, index) => <div key={index} className="group overflow-hidden rounded-lg border">
-                    <div className="relative overflow-hidden aspect-square">
-                      <img src={image} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Photo Gallery
+                </h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Explore our state-of-the-art facilities and premium products
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {company.gallery.map((image, index) => (
+                  <div 
+                    key={index} 
+                    className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer bg-card border"
+                    onClick={() => openImageModal(image, index)}
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img 
+                        src={image} 
+                        alt={`Gallery image ${index + 1}`} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                          <ZoomIn className="h-6 w-6 text-primary" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-4 left-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="text-sm font-medium">View Image</div>
+                        <div className="text-xs opacity-80">{index + 1} of {company.gallery.length}</div>
+                      </div>
                     </div>
-                  </div>)}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Click on any image to view in full size
+                </p>
               </div>
             </div>}
 
@@ -311,6 +381,73 @@ const CompanyDetailTemplate = ({
           </div>
         </div>
       </section>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={closeImageModal}>
+          <div className="relative max-w-5xl max-h-[90vh] w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={closeImageModal}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10"
+              aria-label="Close modal"
+            >
+              <X className="h-8 w-8" />
+            </button>
+            
+            {/* Navigation Buttons */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateImage('prev');
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all duration-200 backdrop-blur-sm"
+              aria-label="Previous image"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateImage('next');
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all duration-200 backdrop-blur-sm"
+              aria-label="Next image"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            
+            {/* Download Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadImage();
+              }}
+              className="absolute right-4 top-4 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all duration-200 backdrop-blur-sm"
+              aria-label="Download image"
+            >
+              <Download className="h-5 w-5" />
+            </button>
+            
+            {/* Image */}
+            <img
+              src={selectedImage}
+              alt={`Gallery image ${currentImageIndex + 1}`}
+              className="w-full h-full object-contain max-h-[80vh] rounded-lg"
+            />
+            
+            {/* Image Counter */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
+              {currentImageIndex + 1} / {company.gallery?.length || 0}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>;

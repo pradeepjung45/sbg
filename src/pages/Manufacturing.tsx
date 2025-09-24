@@ -56,46 +56,48 @@ const Manufacturing = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {companies.map((company, index) => (
-              <Card key={index} className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    {company.logo ? (
-                      <img 
-                        src={company.logo} 
-                        alt={`${company.name} logo`}
-                        className="w-10 h-10 object-contain rounded"
-                      />
-                    ) : (
-                      <Factory className="w-6 h-6 text-primary" />
-                    )}
-                  </div>
-                  <CardTitle className="text-xl">{company.name}</CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    {company.overview}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-3">Key Products:</h4>
-                    <ul className="space-y-2">
-                      {(company.products || company.services || []).slice(0, 4).map((product, productIndex) => (
-                        <li key={productIndex} className="flex items-center text-sm text-muted-foreground">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-                          {product}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="mt-4">
-                    <Button variant="outline" size="sm" asChild className="w-full">
-                      <Link to={`/companies/${company.slug}`}>View Details</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl">
+              {companies.map((company, index) => (
+                <Card key={index} className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300 hover:scale-105 w-full max-w-sm mx-auto">
+                  <CardHeader className="text-center">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
+                      {company.logo ? (
+                        <img 
+                          src={company.logo} 
+                          alt={`${company.name} logo`}
+                          className="w-12 h-12 object-contain rounded"
+                        />
+                      ) : (
+                        <Factory className="w-8 h-8 text-primary" />
+                      )}
+                    </div>
+                    <CardTitle className="text-xl">{company.name}</CardTitle>
+                    <CardDescription className="text-muted-foreground">
+                      {company.overview}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-3 text-center">Key Products:</h4>
+                      <ul className="space-y-2">
+                        {(company.products || company.services || []).slice(0, 4).map((product, productIndex) => (
+                          <li key={productIndex} className="flex items-center text-sm text-muted-foreground">
+                            <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
+                            {product}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="mt-6">
+                      <Button variant="outline" size="sm" asChild className="w-full">
+                        <Link to={`/companies/${company.slug}`}>View Details</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>

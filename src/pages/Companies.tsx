@@ -98,8 +98,10 @@ const Companies = () => {
               </Carousel>
             </div>
 
-            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {sector.companies.map((company, companyIndex) => <CompanyCard key={companyIndex} company={company} />)}
+            <div className="hidden sm:flex justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {sector.companies.map((company, companyIndex) => <CompanyCard key={companyIndex} company={company} />)}
+              </div>
             </div>
           </div>
         </section>)}
